@@ -7,11 +7,20 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col md-12">
-                <div class="well text-center">
-                    <h1>Asset Registry</h1>
-                </div>
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd; padding: 15px;">
+        <div class="container-fluid">
+            <div class="pull-left">
+                <a href="/" class="navbar-brand" style="font-size: 24px; font-weight: bold; cursor: pointer;">Assert Registry</a>
             </div>
+            {% if session.get('logged_in') and session['logged_in'] %}
+            <div class="pull-right">
+                <ul class="nav nav-pills">
+                    <li role="presentation" style="margin-left: 5px;" {% if page=="home" %} class="active" {% endif %}><a href="/"><span class="glyphicon glyphicon-home" aria-hidden="true"></span>&nbsp;&nbsp;Home</a></li>
+                    <li role="presentation" style="margin-left: 5px;" {% if page=="profile" %} class="active" {% endif %}><a href="/profile"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;&nbsp;Profile</a></li>
+                    <li role="presentation" style="margin-left: 5px;"><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;&nbsp;Logout</a></li>
+                  </ul>
+            </div>
+            {% endif %}
         </div>
+    </nav>
+    <div class="container">
