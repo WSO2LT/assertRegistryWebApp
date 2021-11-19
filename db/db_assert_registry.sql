@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 18, 2021 at 02:07 PM
+-- Generation Time: Nov 19, 2021 at 10:32 AM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.6
 
@@ -58,6 +58,13 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`username`, `password`, `last_login`, `reset_token`, `user_id`) VALUES
+('admin@ar.com', '$2b$12$08UvYJ23BIjSFgCQHaW8dOH6tH0Lfa57eCy0gWNjGrJeMsMeZPR8C', '2021-11-19 09:31:09', NULL, 4);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -88,7 +95,7 @@ ALTER TABLE `assets`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
