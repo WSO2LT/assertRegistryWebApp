@@ -50,22 +50,19 @@ INSERT INTO `assets` (`asset_id`, `asset_name`, `asset_owner`, `asset_descriptio
 --
 
 CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `emp_id` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
   `password` text NOT NULL,
-  `added_on` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_login` timestamp NOT NULL DEFAULT current_timestamp(),
   `reset_token` text DEFAULT NULL,
-  `access_level` enum('Admin','Editor','Viewer') NOT NULL
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` ( `user_id`,`name`,`email`,`emp_id`, `password`, `added_on`, `reset_token`,`access_level`) VALUES
-(1,'Admin','admin@ar.com',1,'$2b$12$08UvYJ23BIjSFgCQHaW8dOH6tH0Lfa57eCy0gWNjGrJeMsMeZPR8C', '2021-11-19 09:31:09', NULL, 'Admin');
+INSERT INTO `users` (`username`, `password`, `last_login`, `reset_token`, `user_id`) VALUES
+('admin@ar.com', '$2b$12$08UvYJ23BIjSFgCQHaW8dOH6tH0Lfa57eCy0gWNjGrJeMsMeZPR8C', '2021-11-19 09:31:09', NULL, 4);
 
 --
 -- Indexes for dumped tables
@@ -82,7 +79,7 @@ ALTER TABLE `assets`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
-  ADD UNIQUE KEY `unique_email` (`email`);
+  ADD UNIQUE KEY `unique_username` (`username`);
 
 --
 -- AUTO_INCREMENT for dumped tables
