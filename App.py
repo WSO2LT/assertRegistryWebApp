@@ -20,8 +20,15 @@ r = redis.Redis(host='', port=6379, password='')
 mysql = MySQL(app)
 @app.route('/', methods = ['POST','GET'])
 def Index(limit=10):
-    if request.method == 'POST':
-        searchStr = '%'+request.form['searchStr']+'%'
+    if session.get('logged_in') and session['logged_in']:
+        if request.method == 'POST':
+            searchStr = '%'+request.form['searchStr']+'%'
+            session['searchStr'] = searchStr
+        else:
+            if session['searchStr']:
+                searchStr = session['searchStr']
+            else:
+                searchStr = '%'+'%'
         if(r.exists(searchStr)):
             data = eval(r.get(searchStr))
             print("from Cache")
@@ -40,25 +47,29 @@ def Index(limit=10):
         
         return render_template('index.html', assets=ret, page="home",paginate=paginate )
     else:
-        if session.get('logged_in') and session['logged_in']:
-            if(r.exists("assets")):
-                data = eval(r.get("assets"))
-                print("from cache")
-            else:
-                cur = mysql.connection.cursor()
-                cur.execute("SELECT  * FROM assets")
-                data = cur.fetchall()
-                cur.close()
-                r.psetex("assets", 10000, str(data))
-            page = int(request.args.get("page", 1))
-            start = (page - 1) * limit
-            end = page * limit if len(data) > page * limit else len(data)
-            paginate = Pagination(page=page, total=len(data))
-            ret = data[start:end]
-            
-            return render_template('index.html', assets=ret, page="home",paginate=paginate )
+        return redirect(url_for('login'))
+
+@app.route('/home', methods = ['POST','GET'])
+def home(limit=10):
+    session.pop('searchStr', None)
+    if session.get('logged_in') and session['logged_in']:
+        if(r.exists("assets")):
+            data = eval(r.get("assets"))
+            print("from cache")
         else:
-            return redirect(url_for('login'))
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT  * FROM assets")
+            data = cur.fetchall()
+            cur.close()
+            r.psetex("assets", 10000, str(data))
+        page = int(request.args.get("page", 1))
+        start = (page - 1) * limit
+        end = page * limit if len(data) > page * limit else len(data)
+        paginate = Pagination(page=page, total=len(data))
+        ret = data[start:end] 
+        return render_template('index.html', assets=ret, page="home",paginate=paginate )
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/login', methods =['GET', 'POST'])
 def login():
