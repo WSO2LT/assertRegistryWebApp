@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 import bcrypt
 import re
 import MySQLdb.cursors
+import redis
 from flask_paginate import Pagination
 
 app = Flask(__name__)
@@ -14,16 +15,23 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'db_assert_registry'
 
+r = redis.Redis(host='', port=6379, password='')
+
 mysql = MySQL(app)
 @app.route('/', methods = ['POST','GET'])
 def Index(limit=10):
     if request.method == 'POST':
         searchStr = '%'+request.form['searchStr']+'%'
-        print("Search triggered")
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT  * FROM assets WHERE concat('.',asset_name, '.',asset_owner, '.', criticality, '.',asset_location, '.')  LIKE %s ",(searchStr,))
-        data = cur.fetchall()
-        cur.close()
+        if(r.exists(searchStr)):
+            data = eval(r.get(searchStr))
+            print("from Cache")
+        else:
+            print("Search triggered")
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT  * FROM assets WHERE concat('.',asset_name, '.',asset_owner, '.', criticality, '.',asset_location, '.')  LIKE %s ",(searchStr,))
+            data = cur.fetchall()
+            cur.close()
+            r.psetex(searchStr, 10000, str(data))
         page = int(request.args.get("page", 1))
         start = (page - 1) * limit
         end = page * limit if len(data) > page * limit else len(data)
@@ -33,10 +41,15 @@ def Index(limit=10):
         return render_template('index.html', assets=ret, page="home",paginate=paginate )
     else:
         if session.get('logged_in') and session['logged_in']:
-            cur = mysql.connection.cursor()
-            cur.execute("SELECT  * FROM assets")
-            data = cur.fetchall()
-            cur.close()
+            if(r.exists("assets")):
+                data = eval(r.get("assets"))
+                print("from cache")
+            else:
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT  * FROM assets")
+                data = cur.fetchall()
+                cur.close()
+                r.psetex("assets", 10000, str(data))
             page = int(request.args.get("page", 1))
             start = (page - 1) * limit
             end = page * limit if len(data) > page * limit else len(data)
