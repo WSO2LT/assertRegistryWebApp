@@ -1,11 +1,12 @@
-import time
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+import time, datetime
+from flask import Flask, render_template, request, redirect, url_for, flash, session, Response
 from flask_mysqldb import MySQL
 import bcrypt
 import re
 import MySQLdb.cursors
 import redis
 from flask_paginate import Pagination
+from fpdf import FPDF
 
 app = Flask(__name__)
 app.secret_key = 'many random bytes'
@@ -249,6 +250,45 @@ def changePass():
     elif request.method == 'POST':
         flash("Please fill out the form !", 'danger')
     return redirect(url_for('users'))
+
+@app.route('/download/report/pdf')
+def download_report():
+        if session.get('logged_in') and session['logged_in']:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT  * FROM assets")
+            result = cur.fetchall()
+            cur.close()
+            pdf = FPDF()
+            pdf.add_page(orientation='L')
+            page_width = pdf.w - 2 * pdf.l_margin 
+            pdf.add_font("Arial", "", "static/fonts/arial.ttf", uni=True)
+            pdf.set_font('Times','B',14.0) 
+            pdf.cell(page_width, 0.0, 'Assert Registry', align='C')
+            pdf.ln(10)
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(page_width, 0.0, 'as of '+ str(datetime.datetime.now().strftime("%c")), align='C')
+            pdf.ln(10)
+            th = pdf.font_size+2
+            pdf.cell(page_width/8, th, 'ID', border=1)
+            pdf.cell(page_width/3, th, 'Name', border=1)
+            pdf.cell(page_width/6, th, 'Owner', border=1)
+            pdf.cell(page_width/6, th, 'Location', border=1)
+            pdf.cell(page_width/6, th, 'Criticality', border=1)
+            pdf.set_font('Arial', '', 12)
+            pdf.ln(th)
+            for row in result:
+                pdf.cell(page_width/8, th, str(row[0]), border=1)
+                pdf.cell(page_width/3, th, row[1][:30], border=1)
+                pdf.cell(page_width/6, th, row[2], border=1)
+                pdf.cell(page_width/6, th, row[4], border=1)
+                pdf.cell(page_width/6, th, row[5], border=1)
+                pdf.ln(th)
+            pdf.ln(10)
+            pdf.set_font('Times','',10.0) 
+            pdf.cell(page_width, 0.0, '- end of report -', align='C')
+            return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'attachment;filename=assert_report_'+str(datetime.datetime.now())+'.pdf'})
+        else:
+            return redirect(url_for('login'))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
