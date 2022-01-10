@@ -11,9 +11,9 @@ from fpdf import FPDF
 app = Flask(__name__)
 app.secret_key = 'many random bytes'
 
-app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_HOST'] = '34.145.30.174'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'Kubernetes@72859#'
 app.config['MYSQL_DB'] = 'db_assert_registry'
 
 r = redis.Redis(host='34.82.193.74', port=6379, password='')
