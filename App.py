@@ -11,12 +11,12 @@ from fpdf import FPDF
 app = Flask(__name__)
 app.secret_key = 'many random bytes'
 
-app.config['MYSQL_HOST'] = '34.145.30.174'
-app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_HOST'] = '10.138.0.7'
+app.config['MYSQL_USER'] = 'sammy'
 app.config['MYSQL_PASSWORD'] = 'Kubernetes@72859#'
 app.config['MYSQL_DB'] = 'db_assert_registry'
 
-r = redis.Redis(host='34.82.193.74', port=6379, password='')
+r = redis.Redis(host='34.82.193.74', port=6379, password='Kubernetes@72859#')
 
 mysql = MySQL(app)
 @app.route('/', methods = ['POST','GET'])
@@ -34,7 +34,6 @@ def Index(limit=10):
             data = eval(r.get(searchStr))
             print("from Cache")
         else:
-            print("Search triggered")
             cur = mysql.connection.cursor()
             cur.execute("SELECT  * FROM assets WHERE concat('.',asset_name, '.',asset_owner, '.', criticality, '.',asset_location, '.')  LIKE %s ",(searchStr,))
             data = cur.fetchall()
@@ -58,6 +57,7 @@ def home(limit=10):
             data = eval(r.get("assets"))
             print("from cache")
         else:
+            print("from DB")
             cur = mysql.connection.cursor()
             cur.execute("SELECT  * FROM assets")
             data = cur.fetchall()
