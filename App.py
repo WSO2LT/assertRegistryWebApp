@@ -16,7 +16,7 @@ app.config['MYSQL_USER'] = 'sammy'
 app.config['MYSQL_PASSWORD'] = 'Kubernetes@72859#'
 app.config['MYSQL_DB'] = 'db_assert_registry'
 
-r = redis.Redis(host='34.82.193.74', port=6379, password='Kubernetes@72859#')
+r = redis.Redis(host='10.244.1.103', port=6379, password='Kubernetes@72859#')
 
 mysql = MySQL(app)
 @app.route('/', methods = ['POST','GET'])
