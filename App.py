@@ -34,6 +34,7 @@ def Index(limit=10):
             data = eval(r.get(searchStr))
             print("from Cache")
         else:
+            print("from DB")
             cur = mysql.connection.cursor()
             cur.execute("SELECT  * FROM assets WHERE concat('.',asset_name, '.',asset_owner, '.', criticality, '.',asset_location, '.')  LIKE %s ",(searchStr,))
             data = cur.fetchall()
